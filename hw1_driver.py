@@ -1,8 +1,9 @@
+'''
+    driver code for sankey diagrams
+'''
 import pandas as pd
 import sankey as sk
 import itertools
-from plotly.subplots import make_subplots
-
     
 def main():
     # build dataframe with needed info from json file and clean for decades

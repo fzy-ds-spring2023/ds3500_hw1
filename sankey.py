@@ -1,5 +1,5 @@
-
 """
+Based off class code
 sankey.py: A reusable library for sankey visualizations
 """
 import pandas as pd
@@ -7,12 +7,13 @@ import plotly.graph_objects as go
 
 
 def _group_data(df, src, targ, vals=None):
+    grp = df.groupby([src,targ])
     # group by for each column pair and rename dataframe columns
     if vals:    
-        return df.groupby([src, targ])[vals].sum().reset_index().rename(columns = {src:'source', targ:'target'})
+        return grp[vals].sum().reset_index().rename(columns = {src:'source', targ:'target', vals:'values'})
     else:
         # rename aggregate column to vals=None to remove if statement for vals in make_sankey
-        return df.groupby([src,targ]).size().reset_index().rename(columns = {src:'source', targ:'target', 0: vals})
+        return grp.size().reset_index().rename(columns = {src:'source', targ:'target', 0: 'values'})
     
 
 def _code_mapping(df):
@@ -54,11 +55,11 @@ def make_sankey(input_df, cols, vals=None, **kwargs):
     df, labels = _code_mapping(df)
     
     # kwargs for better looking sankey diagrams, defaults=20
-    df = df.loc[df[vals] >= kwargs.get('min_val', 20)]
+    df = df.loc[df['values'] >= kwargs.get('min_val', 20)]
     pad = kwargs.get('pad', 20)
     
     # build Sankey requisites
-    link = {'source':df['source'], 'target':df['target'], 'value':df[vals]}
+    link = {'source':df['source'], 'target':df['target'], 'value':df['values']}
     node = {'label': labels, 'pad': pad}
     sk = go.Sankey(link=link, node=node)
     fig = go.Figure(sk)
